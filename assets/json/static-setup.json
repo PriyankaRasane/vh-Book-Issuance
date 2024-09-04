@@ -1,0 +1,153 @@
+{
+    "googleForm": {
+        "customFormUrl": "https://docs.google.com/forms/d/e/1FAIpQLSfHlpBGv94GjJnqvkufxEBKOnyyHlFAdduh3uawo3oI2C9EqQ/formResponse",
+        "prefilledFormUrl": "https://docs.google.com/forms/d/e/1FAIpQLSfHlpBGv94GjJnqvkufxEBKOnyyHlFAdduh3uawo3oI2C9EqQ/viewform?usp=pp_url",
+        "enrollmentId": "entry.542565564",
+        "status": "entry.84080034",
+        "superviserId": "entry.1983025133",
+        "locationId": "entry.805747511"
+    },
+    "googleSheet": {
+        "url": "https://docs.google.com/spreadsheets/d/16g1K8eb5lva6xfu8batH_pHI9TpH1E8eyxt0BiG0_hA/edit?usp=sharing",
+        "sheetId": "16g1K8eb5lva6xfu8batH_pHI9TpH1E8eyxt0BiG0_hA",
+        "records": "records!A2:E12000",
+        "supervisors": "supervisors!A2:D100",
+        "locations": "locations!A2:E21",
+        "setup": "setup!B2:C6",
+        "students":"students!A2:L1200"
+    },
+    "metadata": {
+        "locations": {
+            "id": {
+                "index": 0,
+                "name": "branchId",
+                "displayName": "Branch Id"
+            },
+            "branch": {
+                "index": 1,
+                "name": "branch",
+                "displayName": "branch"
+            },
+            "city": {
+                "index": 2,
+                "name": "city",
+                "displayName": "city"
+            },
+            "state": {
+                "index": 3,
+                "name": "state",
+                "displayName": "State"
+            },
+            "country": {
+                "index": 4,
+                "name": "country",
+                "displayName": "Country"
+            }
+        },
+        "supervisor": {
+            "id": {
+                "index": 0,
+                "name": "supervisorId",
+                "displayName": "Supervisor Id"
+            },
+            "name": {
+                "index": 1,
+                "name": "name",
+                "displayName": "Name"
+            },
+            "gender": {
+                "index": 2,
+                "name": "gender",
+                "displayName": "Gender"
+            },
+            "otp": {
+                "index": 3,
+                "name": "otp",
+                "displayName": "OTP"
+            }
+        },
+        "records": {
+            "timestamp": {
+                "index": 0,
+                "name": "timestamp",
+                "displayName": "timestamp"
+            },
+            "enrollmentId": {
+                "index": 1,
+                "name": "enrollmentId",
+                "displayName": "enrollmentId"
+            },
+            "status": {
+                "index": 2,
+                "name": "status",
+                "displayName": "status"
+            },
+            "superviserId": {
+                "index": 3,
+                "name": "superviserId",
+                "displayName": "superviserId"
+            },
+            "locationId": {
+                "index": 4,
+                "name": "location",
+                "displayName": "location"
+            }
+        },
+        "students": {            
+            "id": {
+                "index": 0,
+                "name": "studentId",
+                "displayName": "Enrollment No."
+            },
+            "name": {
+                "index": 1,
+                "name": "name",
+                "displayName": "Student Name"
+            },
+            "board": {
+                "index": 2,
+                "name": "board",
+                "displayName": "Activity Id"
+            },
+            "city": {
+                "index": 3,
+                "name": "city",
+                "displayName": "City"
+            },
+            "location": {
+                "index": 4,
+                "name": "location",
+                "displayName": "School Location"
+            },
+            "grade": {
+                "index": 5,
+                "name": "grade",
+                "displayName": "Grade"
+            },
+            "Subject": {
+                "index": 6,
+                "name": "Subject",
+                "displayName": "Subject"
+            },
+            "email_id": {
+                "index": 7,
+                "name": "email_id",
+                "displayName": "Email ID"
+            },
+            "mobile_no": {
+                "index": 8,
+                "name": "mobile_no",
+                "displayName": "Mobile No."
+            },
+            "comment": {
+                "index": 9,
+                "name": "comment",
+                "displayName": "Comment"
+            }
+
+        }
+    },
+    "cache": {
+        "enabled": false
+    }
+}
