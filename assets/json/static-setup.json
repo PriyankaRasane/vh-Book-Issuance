@@ -107,7 +107,7 @@
             "board": {
                 "index": 2,
                 "name": "board",
-                "displayName": "Activity Id"
+                "displayName": "Board"
             },
             "city": {
                 "index": 3,
@@ -129,20 +129,20 @@
                 "name": "Subject",
                 "displayName": "Subject"
             },
-            "email_id": {
+            "emailId": {
                 "index": 7,
-                "name": "email_id",
+                "name": "emailId",
                 "displayName": "Email ID"
             },
-            "mobile_no": {
+            "mobileNo": {
                 "index": 8,
-                "name": "mobile_no",
+                "name": "mobileNo",
                 "displayName": "Mobile No."
             },
-            "comment": {
+            "paymentStatus": {
                 "index": 9,
-                "name": "comment",
-                "displayName": "Comment"
+                "name": "paymentStatus",
+                "displayName": "Payment Status"
             }
 
         }
