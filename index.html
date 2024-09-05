@@ -496,6 +496,14 @@
                     $("#board").text(student.getBoard() );
                     $("#grade").text(student.getGrade() + " (" + student.getLocation() + ")");
                     $("#subject").text(student.getSubject());
+
+                    const button = document.querySelector("#btnSubmit");
+
+                    if (student.getPaymentStatus()=="Paid")
+                        button.disabled=false;
+                    else
+                        button.disabled=true;
+                    
                    /* var metaStudents = window.staticSetup.metadata.students;
                     $("#schedule").html("<a href='./files/" + member.getSchedule() + "' target='_blank'>Click to download " + metaMembers.schedule.displayName + "</a>");
 */
