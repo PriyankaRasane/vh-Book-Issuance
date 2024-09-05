@@ -1009,10 +1009,11 @@
      * @param {string} location 
      * @param {string} grade 
      * @param {string} Subject 
-     * @param {string} email_id 
-     * @param {string} mobile_no
+     * @param {string} emailId 
+     * @param {string} mobileNo
+     * @param {string} paymentStatus
      */
-    function Student(id, name, board, city, location, grade, Subject, email_id, mobile_no) {
+    function Student(id, name, board, city, location, grade, Subject, emailId, mobileNo,paymentStatus) {
         this.id = id;
         this.name = name;
         this.board = board;
@@ -1020,8 +1021,10 @@
         this.location = location;
         this.grade = grade;
         this.Subject = Subject;
-        this.email_id = email_id;
-        this.mobile_no = mobile_no;
+        this.emailId = emailId;
+        this.mobileNo = mobileNo;
+        this.paymentStatus = paymentStatus;
+
     }
 
     $.extend(Student.prototype, {
@@ -1086,7 +1089,7 @@
          * @returns {string}
          */
         getEmailId : function() {
-            return this.email_id;
+            return this.emailId;
         },
 
         /**
@@ -1094,9 +1097,16 @@
          * @returns {string}
          */
         getMobileNo : function() {
-            return this.mobile_no;
-        }
+            return this.mobileNo;
+        },
 
+        /**
+         * 
+         * @returns {string}
+         */
+        getPaymentStatus : function() {
+            return this.paymentStatus;
+        }
     });
 
     /**
@@ -1117,8 +1127,9 @@
             row[metadata.location.index],
             row[metadata.grade.index],
             row[metadata.Subject.index],
-            row[metadata.email_id.index],
-            row[metadata.mobile_no.index],
+            row[metadata.emailId.index],
+            row[metadata.mobileNo.index],
+            row[metadata.paymentStatus.index],
         );
     };
 
@@ -1136,8 +1147,9 @@
             data["location"],
             data["grade"],
             data["Subject"],
-            data["email_id"],
-            data["mobile_no"],
+            data["emailId"],
+            data["mobileNo"],
+            data["paymentStatus"],
         );
     };
 
