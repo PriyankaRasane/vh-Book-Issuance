@@ -63,13 +63,30 @@
                     <div class="col-lg-10 align-self-end">
                         <div id="tabs">
                             <ul>
-                                <li><a href="#tabs-pending">Yet To Attend</a></li>
-                                <li><a href="#tabs-attended">Attended</a></li>
+                                <li><a href="#tabs-pending">Yet to Handover</a></li>
+                                <li><a href="#tabs-attended">Handed Over </a></li>
                                 <li>
-                                    <select title="Select member type from drop-down" class="form-control" id="memberTypeFilter" name="memberTypeFilter" onchange="prepareMemberDrilldown()">
+                                    <select title="Select Board from drop-down" class="form-control" id="memberTypeFilter" name="memberTypeFilter" onchange="prepareMemberDrilldown()">
                                         <option value="0" selected>ALL</option>
-                                        <option value="1">Students</option>
-                                        <option value="2">Teachers</option>
+                                        <option value="1">CBSE</option>
+                                        <option value="2">ICSE</option>
+                                        <option value="3">IGCSE</option>
+                                    </select>
+                                </li>
+                                <li>
+                                    <select title="Select City from drop-down" class="form-control" id="cityFilter" name="cityFilter" onchange="prepareMemberDrilldown()">
+                                        <option value="0" selected>ALL</option>
+                                        <option value="1">Pune</option>
+                                        <option value="2">Mumbai</option>
+                                        <option value="3">Bengaluru</option>
+                                        <option value="4">Coimbatore</option>
+                                    </select>
+                                </li>
+                                <li>
+                                    <select title="Select payment Status from drop-down" class="form-control" id="paymentStatusFilter" name="paymentStatusFilter" onchange="prepareMemberDrilldown()">
+                                        <option value="0" selected>ALL</option>
+                                        <option value="1">Paid</option>
+                                        <option value="2">Pending</option>
                                     </select>
                                 </li>
                             </ul>
@@ -79,9 +96,9 @@
                                         <thead>
                                             <tr>
                                                 <th>Name</th>
-                                                <th>Representing</th>
-                                                <th>Registration</th>
-                                                <th>School</th>
+                                                <th>Board</th>
+                                                <th>Grade</th>
+                                                <th>Book Kit</th>
                                             </tr>
                                         </thead>
                                     </table>
@@ -93,9 +110,9 @@
                                         <thead>
                                             <tr>
                                                 <th>Name</th>
-                                                <th>Representing</th>
-                                                <th>Registration</th>
-                                                <th>School</th>
+                                                <th>Board</th>
+                                                <th>Grade</th>
+                                                <th>Book Kit</th>
                                             </tr>
                                         </thead>
                                     </table>
@@ -223,10 +240,10 @@
                     try {
                         loadSetup();
                         loadSupervisors();
-                        loadMembers();
-                        loadActivities();
-                        loadEntries();
-                        loadSubsequentEntries();
+                        loadLocations();
+                        loadStudents();
+                        loadRecords();  
+                        loadSubsequentRecords();                      
                         prepareReports();
                     } finally {
                         $("body").JQLoader({action: "close" });
@@ -235,6 +252,136 @@
                 });
             }
             
+            function loadLocations() {
+                startLog('loadLocations');
+                window.locations = new $.Locations();
+                window.locations.load(function() {
+                    // https://docs.google.com/spreadsheets/d/1Os_t3wqu7c02DhO4yaOKHHOSmihoKfs_jCDzvHQaCiU/edit?usp=sharing
+                    var eventMgmtSheet = new $.Sheet({sheetId: window.staticSetup.googleSheet.sheetId, apiKey: window.CONST_GSHEET_API_KEY});
+                    info('Sheet ID - ' + eventMgmtSheet.getSheetId());
+                    var locationsSheetRangeRef = window.staticSetup.googleSheet.locations.split("!");
+                    var values = eventMgmtSheet.getValues(locationsSheetRangeRef[0], locationsSheetRangeRef[1]);
+                    info('loadLocations: ' + JSON.stringify(values));
+                    var country = window.staticSetup.baseSetup['CURRENT_COUNTRY'];
+                    var metaLocations = window.staticSetup.metadata.locations;
+                    var arrLocations = [];
+                    values.values.forEach(function(row, index, array) {
+                     var location = $.Location.fromRecord(row, metaLocations);
+                        if (location && location.getCountry() === country) {
+                            arrLocations.push(location);
+                        }
+                    });
+                    return arrLocations;
+                });
+            }
+
+            function loadStudents() {
+                startLog('loadStudents');
+                try {
+                    window.students = new $.Students();
+                    window.students.load(function() {
+                        // https://docs.google.com/spreadsheets/d/1Os_t3wqu7c02DhO4yaOKHHOSmihoKfs_jCDzvHQaCiU/edit?usp=sharing
+                        var eventMgmtSheet = new $.Sheet({sheetId: window.staticSetup.googleSheet.sheetId, apiKey: window.CONST_GSHEET_API_KEY});
+                        info('loadStudents: Sheet ID - ' + eventMgmtSheet.getSheetId());
+                        var studentsSheetRangeRef = window.staticSetup.googleSheet.students.split("!");
+                        var values = eventMgmtSheet.getValues(studentsSheetRangeRef[0], studentsSheetRangeRef[1]);
+                        info('loadStudents: ' + JSON.stringify(values));
+                        var totalRecords = 0;
+                        if (values["values"]) {
+                            totalRecords = values["values"].length;
+                        }
+                        info('loadStudents:  API Response - range: ' + values['range'] + ", majorDimension: " + values['majorDimension'] + ", total: " + totalRecords);
+                        if (totalRecords == 0) {
+                            return [];
+                        }
+                        var arrStudents = [];
+                        var metaStudents = window.staticSetup.metadata.students;
+                        values.values.forEach(function(row, index, array) {
+                            var student = new $.Student.fromRecord(row, metaStudents);
+                            if (student) {
+                                arrStudents.push(student);
+                            }
+                        });
+                        return arrStudents;
+                    });
+                    info('loadStudents: studentDetail - ' + JSON.stringify(window.student));
+                } finally {
+                    endLog('loadStudents');
+                }
+            }
+
+            function loadSubsequentRecords() {
+                startLog('loadSubsequentRecords');
+                try {
+                    var arrRecords = window.records.getAll();
+                    var startOfRange = "A" + (arrRecords.length + 2); // +1 header and +1 for range row start from 1
+                    // https://docs.google.com/spreadsheets/d/1Os_t3wqu7c02DhO4yaOKHHOSmihoKfs_jCDzvHQaCiU/edit?usp=sharing
+                    var eventMgmtSheet = new $.Sheet({sheetId: window.staticSetup.googleSheet.sheetId, apiKey: window.CONST_GSHEET_API_KEY});
+                    info('loadRecords: Sheet ID - ' + eventMgmtSheet.getSheetId());
+                    var recordsSheetRangeRef = window.staticSetup.googleSheet.records.split("!");
+                    var values = eventMgmtSheet.getValues(recordsSheetRangeRef[0], recordsSheetRangeRef[1].replace("A2", startOfRange));
+                    var totalRecords = 0;
+                    if (values["values"]) {
+                        totalRecords = values["values"].length;
+                    }
+                    info('loadRecords: API Response - range: ' + values['range'] + ", majorDimension: " + values['majorDimension'] + ", total: " + totalRecords);
+                    if (totalRecords == 0) {
+                        return ;
+                    }
+                    var metaRecords = window.staticSetup.metadata.records;
+                    values.values.forEach(function(row, index, array) {
+                        var record = new $.Record.fromRecord(row, metaRecords);
+                        if (record) {
+                            window.records.add(record);
+                        }
+                    });
+                    window.records.save();
+                } finally {
+                    endLog('loadSubsequentRecords');
+                }
+            }
+            // editted till here
+
+
+             // editting from here
+             function loadRecords() {
+                startLog('loadRecords');
+                try {
+                    window.records = new $.Records();
+                    window.records.load(function() {
+                        // https://docs.google.com/spreadsheets/d/1Os_t3wqu7c02DhO4yaOKHHOSmihoKfs_jCDzvHQaCiU/edit?usp=sharing
+                        var eventMgmtSheet = new $.Sheet({sheetId: window.staticSetup.googleSheet.sheetId, apiKey: window.CONST_GSHEET_API_KEY});
+                        info('loadRecords: Sheet ID - ' + eventMgmtSheet.getSheetId());
+                        var recordsSheetRangeRef = window.staticSetup.googleSheet.records.split("!");
+                        var values = eventMgmtSheet.getValues(recordsSheetRangeRef[0], recordsSheetRangeRef[1]);
+                        var totalRecords = 0;
+                        if (values["values"]) {
+                            totalRecords = values["values"].length;
+                        }
+                        info('loadRecords: API Response - range: ' + values['range'] + ", majorDimension: " + values['majorDimension'] + ", total: " + totalRecords);
+                        if (totalRecords == 0) {
+                            return [];
+                        }
+                        var metaRecords = window.staticSetup.metadata.records;
+                        var arrRecords = [];
+                        values.values.forEach(function(row, index, array) {
+                            var record = new $.Record.fromRecord(row, metaRecords);
+                            if (record) {
+                                arrRecords.push(record);
+                            }
+                        });
+                        return arrRecords;
+                    });
+                    if (window.student) {
+                        info('loadRecords: student records - ' + JSON.stringify(window.records.getByEnrollmentId(window.student.getId())));
+                    }
+                } finally {
+                    endLog('loadRecords');
+                }
+            }
+
+
+
             function loadStaticSetup(callback) {
                 startLog("loadStaticSetup");
                 try {
@@ -297,38 +444,6 @@
                 endLog('loadSetup');
             }
 
-            function loadActivities() {
-                startLog('loadActivities');
-                window.activities = new $.Activities();
-                window.activities.load(function() {
-                    // https://docs.google.com/spreadsheets/d/1Os_t3wqu7c02DhO4yaOKHHOSmihoKfs_jCDzvHQaCiU/edit?usp=sharing
-                    var eventMgmtSheet = new $.Sheet({sheetId: window.staticSetup.googleSheet.sheetId, apiKey: window.CONST_GSHEET_API_KEY});
-                    info('Sheet ID - ' + eventMgmtSheet.getSheetId());
-                    var activitiesSheetRangeRef = window.staticSetup.googleSheet.activities.split("!");
-                    var values = eventMgmtSheet.getValues(activitiesSheetRangeRef[0], activitiesSheetRangeRef[1]);
-                    var totalRecords = 0;
-                    if (values["values"]) {
-                        totalRecords = values["values"].length;
-                    }
-                    info('loadActivities: API Response - range: ' + values['range'] + ", majorDimension: " + values['majorDimension'] + ", total: " + totalRecords);
-                    if (totalRecords == 0) {
-                        return [];
-                    }
-                    var metaActivities = window.staticSetup.metadata.activities;
-                    var arrActivities = [];
-                    values.values.forEach(function(row, index, array) {
-                        activity = $.Activity.fromRecord(row, metaActivities);
-                        if (activity) {
-                            arrActivities.push(activity);
-                        }
-                    });
-                    return arrActivities;
-                });
-
-                info('loadActivities: loaded activities - ' + JSON.stringify(window.activities));
-                endLog('loadActivities');
-            }
-
             function loadSupervisors() {
                 startLog('loadSupervisors');
                 window.supervisors = new $.Supervisors();
@@ -359,104 +474,6 @@
                 });
 
                 endLog('loadSupervisors');
-            }
-
-            function loadMembers() {
-                startLog('loadMembers');
-                try {
-                    window.members = new $.Members();
-                    window.members.load(function() {
-                        // https://docs.google.com/spreadsheets/d/1Os_t3wqu7c02DhO4yaOKHHOSmihoKfs_jCDzvHQaCiU/edit?usp=sharing
-                        var eventMgmtSheet = new $.Sheet({sheetId: window.staticSetup.googleSheet.sheetId, apiKey: window.CONST_GSHEET_API_KEY});
-                        info('loadMembers: Sheet ID - ' + eventMgmtSheet.getSheetId());
-                        var membersSheetRangeRef = window.staticSetup.googleSheet.members.split("!");
-                        var values = eventMgmtSheet.getValues(membersSheetRangeRef[0], membersSheetRangeRef[1]);
-                        var totalRecords = 0;
-                        if (values["values"]) {
-                            totalRecords = values["values"].length;
-                        }
-                        info('loadMembers:  API Response - range: ' + values['range'] + ", majorDimension: " + values['majorDimension'] + ", total: " + totalRecords);
-                        if (totalRecords == 0) {
-                            return [];
-                        }
-                        var arrMembers = [];
-                        var metaMembers = window.staticSetup.metadata.members;
-                        values.values.forEach(function(row, index, array) {
-                            var member = new $.Member.fromRecord(row, metaMembers);
-                            if (member) {
-                                arrMembers.push(member);
-                            }
-                        });
-                        return arrMembers;
-                    });
-
-                } finally {
-                    endLog('loadMembers');
-                }
-            }
-
-            function loadEntries() {
-                startLog('loadEntries');
-                try {
-                    window.entries = new $.Entries();
-                    window.entries.load(function() {
-                        // https://docs.google.com/spreadsheets/d/1Os_t3wqu7c02DhO4yaOKHHOSmihoKfs_jCDzvHQaCiU/edit?usp=sharing
-                        var eventMgmtSheet = new $.Sheet({sheetId: window.staticSetup.googleSheet.sheetId, apiKey: window.CONST_GSHEET_API_KEY});
-                        info('loadEntries: Sheet ID - ' + eventMgmtSheet.getSheetId());
-                        var entriesSheetRangeRef = window.staticSetup.googleSheet.entries.split("!");
-                        var values = eventMgmtSheet.getValues(entriesSheetRangeRef[0], entriesSheetRangeRef[1]);
-                        var totalRecords = 0;
-                        if (values["values"]) {
-                            totalRecords = values["values"].length;
-                        }
-                        info('loadEntries: API Response - range: ' + values['range'] + ", majorDimension: " + values['majorDimension'] + ", total: " + totalRecords);
-                        if (totalRecords == 0) {
-                            return [];
-                        }
-                        var metaEntries = window.staticSetup.metadata.entries;
-                        var arrEntries = [];
-                        values.values.forEach(function(row, index, array) {
-                            var entry = new $.Entry.fromRecord(row, metaEntries);
-                            if (entry) {
-                                arrEntries.push(entry);
-                            }
-                        });
-                        return arrEntries;
-                    });
-                } finally {
-                    endLog('loadEntries');
-                }
-            }
-
-            function loadSubsequentEntries() {
-                startLog('loadSubsequentEntries');
-                try {
-                    var arrEntries = window.entries.getAll();
-                    var startOfRange = "A" + (arrEntries.length + 2); // +1 header and +1 for range row start from 1
-                    // https://docs.google.com/spreadsheets/d/1Os_t3wqu7c02DhO4yaOKHHOSmihoKfs_jCDzvHQaCiU/edit?usp=sharing
-                    var eventMgmtSheet = new $.Sheet({sheetId: window.staticSetup.googleSheet.sheetId, apiKey: window.CONST_GSHEET_API_KEY});
-                    info('loadSubsequentEntries: Sheet ID - ' + eventMgmtSheet.getSheetId());
-                    var entriesSheetRangeRef = window.staticSetup.googleSheet.entries.split("!");
-                    var values = eventMgmtSheet.getValues(entriesSheetRangeRef[0], entriesSheetRangeRef[1].replace("A2", startOfRange));
-                    var totalRecords = 0;
-                    if (values["values"]) {
-                        totalRecords = values["values"].length;
-                    }
-                    info('loadSubsequentEntries: API Response - range: ' + values['range'] + ", majorDimension: " + values['majorDimension'] + ", total: " + totalRecords);
-                    if (totalRecords == 0) {
-                        return ;
-                    }
-                    var metaEntries = window.staticSetup.metadata.entries;
-                    values.values.forEach(function(row, index, array) {
-                        var entry = new $.Entry.fromRecord(row, metaEntries);
-                        if (entry) {
-                            window.entries.add(entry);
-                        }
-                    });
-                    window.entries.save();
-                } finally {
-                    endLog('loadSubsequentEntries');
-                }
             }
 
             /**
@@ -520,26 +537,27 @@
             }
 
             function prepareData() {
-                var activities = window.activities.getAll();
+                var students = window.students.getAll();
                 var data = [];
-                activities.forEach((activity) => {
-                    var entries = window.entries.getByActivityId(activity.getId());
+                students.forEach((student) => {
+                    var records = window.records.getByEnrollmentId(student.getId());
                     var totalEntries = 0;
-                    if (entries) {
-                        totalEntries = entries.length;
+                    if (records) {
+                        totalEntries = records.length;
                     }
-                    data.push([activity.getGroup(), activity.getName(), Number(activity.getMaxAllowed()), totalEntries, ((totalEntries / activity.getMaxAllowed()) * 100)]);
+                    data.push([student.getName(), student.getBoard(),student.getGrade(),student.getBookKitName(),student.getLocation(),student.getPaymentStatus()]);//, Number(activity.getMaxAllowed()), totalEntries, ((totalEntries / activity.getMaxAllowed()) * 100)]);
                 });
                 return data;
             }
 
             function renderReports(data) {
                 var chartTable = new google.visualization.DataTable();
-                chartTable.addColumn('string', 'Day');
-                chartTable.addColumn('string', 'Station');
-                chartTable.addColumn('number', 'Maximum');
-                chartTable.addColumn('number', 'Entries');
-                chartTable.addColumn('number', '% of Max');
+                chartTable.addColumn('string', 'Name');
+                chartTable.addColumn('string', 'Board');
+                chartTable.addColumn('string', 'Grade');
+                chartTable.addColumn('string', 'Book Kit');
+                chartTable.addColumn('string', 'Location');
+                chartTable.addColumn('string', 'Payment Status');
                 chartTable.addRows(data);
 
                 var chart = new google.visualization.Table(document.getElementById('reportOverall'));
@@ -569,51 +587,53 @@
             }
 
             function handleSelection(group, activityName) {
-                var activity = window.activities.getByName(group + " / " + activityName);
-                window.selectedActivity = activity;
+                var student = window.students.getByName(group + " / " + activityName);
+                window.selectedActivity = student;
                 $("#activity").html(group + " / " + activityName);
                 prepareMemberDrilldown();
             }
 
-            function isMemberOfType(member, memberType) {
+            function isBoardType(student, memberType) {
                 return (memberType === "0" 
-                    || (memberType === "1" && member.getRegistration() !== "Option F")
-                    || (memberType === "2" && member.getRegistration() === "Option F"));
+                    || (memberType === "1" && student.getBoard() === "CBSE")
+                    || (memberType === "2" && student.getBoard() === "ICSE")
+                    || (memberType === "3" && student.getBoard() === "IGCSE"));
             }
 
-            function isAllowed(member, activity) {
-                if (activity.getCustom()) {
-                    var custom = "" + activity.getCustom();
-                    var checks = custom.trim().split(",");
-                    if (checks.length > 0) {
-                        var found = false;
-                        for (var i = 0; i < checks.length; ++i) {
-                            if (member.getRegistration() === checks[i].trim()) {
-                                found = true;
-                                break;
-                            }
-                        }
-                        if (found === false) {
-                            return false;
-                        }
-                    }
-                }
-                return true;
+            function ispaymentStatusType(student, paymentStatus) {
+                return (paymentStatus === "0" 
+                    || (paymentStatus === "1" && student.getPaymentStatus() === "Paid")
+                    || (paymentStatus === "2" && student.getPaymentStatus() === "Pending"));
+            }
+
+            function iscityType(location, citySelected) {
+                return (citySelected === "0" 
+                    || (citySelected === "1" && location.getCity() === "Pune")
+                    || (citySelected === "2" && location.getCity() === "Mumbai")
+                    || (citySelected === "3" && location.getCity() === "Bengaluru")
+                    || (citySelected === "4" && location.getCity() === "Coimbatore"));
             }
 
             function prepareMemberDrilldown() {
                 var dataPending = [];
-                var dataAttended = [];
-                var activity = window.selectedActivity;
-                var members = window.members.getAll();
-                var memberType = $("#memberTypeFilter").find(":selected").val();
-                members.forEach((member) => {
-                    if (isAllowed(member, activity) && isMemberOfType(member, memberType)) {
+                var dataHandedOver = [];
+                //var activity = window.selectedActivity;
+                var students = window.students.getAll();
+                var boardType = $("#memberTypeFilter").find(":selected").val();
+                var paymentStatusType = $("#paymentStatusFilter").find(":selected").val();
+                var citySelected = $("#cityFilter").find(":selected").val();
+
+                students.forEach((student) => {
+                    var location = window.locations.getById(student.getLocation());
+
+                    if ((isBoardType(student, boardType)) && (ispaymentStatusType(student,paymentStatusType))
+                         && (iscityType(location,citySelected))) {
+
                         var found = false;
-                        var entries = window.entries.getByMemberId(member.getId());
-                        if (entries) {
-                            for (var i = 0; i < entries.length; ++i) {
-                                if (entries[i].getActivityId() === activity.getId()) {
+                        var records = window.records.getByEnrollmentId(student.getId());
+                        if (records) {
+                            for (var i = 0; i < records.length; ++i) {
+                                if (records[i].getEnrollmentId() === student.getId()) {
                                     found = true;
                                     break;
                                 }
@@ -621,24 +641,25 @@
                         }
                         if (found === false) {
                             dataPending.push([
-                                member.getName() + " (" + member.getId() + ")",
-                                member.getCountry() + ", " + member.getCommittee(),
-                                member.getRegistration() + " (" + member.getAccomodation() + ")",
-                                member.getSchool()
+                                student.getName() + " (" + student.getId() + ")",
+                                student.getBoard(),
+                                student.getGrade() + " (" + student.getLocation() + ")" ,
+                                student.getBookKitName()
                             ]);
                         } else {
-                            dataAttended.push([
-                                member.getName() + " (" + member.getId() + ")",
-                                member.getCountry() + ", " + member.getCommittee(),
-                                member.getRegistration() + " (" + member.getAccomodation() + ")",
-                                member.getSchool()
+                            dataHandedOver.push([
+                                student.getName() + " (" + student.getId() + ")",
+                                student.getBoard() ,
+                                student.getGrade() + " (" + student.getLocation() + ")" ,
+                                student.getBookKitName() 
                             ]);
                         }
                     }
                 });
-
+                
+            
                 window.tablePending.clear().rows.add(dataPending).draw();
-                window.tableAttended.clear().rows.add(dataAttended).draw();
+                window.tableAttended.clear().rows.add(dataHandedOver).draw();
 
             }
 
