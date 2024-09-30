@@ -13,6 +13,7 @@
         "records": "records!A2:E12000",
         "supervisors": "supervisors!A2:D100",
         "locations": "locations!A2:E21",
+        "bookKits": "bookKits!A2:C10",
         "setup": "setup!B2:C6",
         "students":"students!A2:L1200"
     },
@@ -42,6 +43,23 @@
                 "index": 4,
                 "name": "country",
                 "displayName": "Country"
+            }
+        },
+        "bookKits": {
+            "id": {
+                "index": 0,
+                "name": "kitId",
+                "displayName": "Kit ID"
+            },
+            "kitName": {
+                "index": 1,
+                "name": "kitName",
+                "displayName": "Kit Name"
+            },
+            "subject": {
+                "index": 2,
+                "name": "subject",
+                "displayName": "Subject"
             }
         },
         "supervisor": {
@@ -109,38 +127,33 @@
                 "name": "board",
                 "displayName": "Board"
             },
-            "city": {
-                "index": 3,
-                "name": "city",
-                "displayName": "City"
-            },
             "location": {
-                "index": 4,
+                "index": 3,
                 "name": "location",
                 "displayName": "School Location"
             },
             "grade": {
-                "index": 5,
+                "index": 4,
                 "name": "grade",
                 "displayName": "Grade"
             },
-            "Subject": {
-                "index": 6,
-                "name": "Subject",
-                "displayName": "Subject"
+            "bookKitName": {
+                "index": 5,
+                "name": "bookKitName",
+                "displayName": "Book Kit Name"
             },
             "emailId": {
-                "index": 7,
+                "index": 6,
                 "name": "emailId",
                 "displayName": "Email ID"
             },
             "mobileNo": {
-                "index": 8,
+                "index": 7,
                 "name": "mobileNo",
                 "displayName": "Mobile No."
             },
             "paymentStatus": {
-                "index": 9,
+                "index": 8,
                 "name": "paymentStatus",
                 "displayName": "Payment Status"
             }
