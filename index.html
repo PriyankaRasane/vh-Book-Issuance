@@ -244,7 +244,7 @@
                 clientId: CLIENT_ID,
                 discoveryDocs: DISCOVERY_DOCS,
                 scope: SCOPES,
-                plugin_name: 'StudentKitDistribution'
+                plugin_name: 'vh-Book-Issuance'
             }).then(() => {
                 gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
                 updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
