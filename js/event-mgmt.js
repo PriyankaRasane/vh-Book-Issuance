@@ -22,6 +22,9 @@
     const CACHE_KEY_STUDENTS = "studentKitInfo";
     const CACHE_EVICATION_STUDENTS = 1000 * 60 * 60; // 1 hour
 
+    const CACHE_KEY_BOOKKITS = "bookKitInfo";
+    const CACHE_EVICATION_BOOKKITS = 1000 * 60 * 60; // 1 hour
+
     function Cachable() {
         // DO NOTHING
     }
@@ -124,198 +127,7 @@
         }
     });
 
-    function Activities() {
-        this.cachable = new Cachable();
-        $.cacheManager.register(CACHE_KEY_ACTIVITIES, new Cache(CACHE_KEY_ACTIVITIES, this, CACHE_EVICATION_ACTIVITIES)); // 1 minute
 
-        this.activities = [];
-        this.activityById = new Map();
-        this.activityByName = new Map();
-    }
-
-
-    $.extend(Activities.prototype, {
-
-        /**
-         * 
-         * @param {function} callback 
-         * @returns {Activity[]}
-         */
-        load: function(callback) {
-            var arrActivities = $.cacheManager.get(CACHE_KEY_ACTIVITIES).load(callback);
-            arrActivities.forEach(activity => {
-                this.add(activity);
-            });
-            return this.getAll();
-        },
-
-        save: function() {
-            $.cacheManager.get(CACHE_KEY_ACTIVITIES).save(this.activities);
-        },
-
-        /**
-         * 
-         * @param {string} content 
-         * @returns {Activity[]}
-         */
-        fromCache: function(content) {
-            var arrActivities = this.cachable.fromCache(content);
-            var arrResult = [];
-            arrActivities.forEach(jsonActivity => {
-                arrResult.push(Activity.fromJson(jsonActivity));
-            });
-            return arrResult;
-        },
-
-        /**
-         * 
-         * @param {any} data 
-         * @returns {string} content to be cached
-         */
-        toCache: function(data) {
-            return this.cachable.toCache(data);
-        },
-
-        /**
-         * 
-         * @param {Activity} activity 
-         */
-        add : function(activity) {
-            this.activities.push(activity);
-            this.activityById.set(activity.getId(), activity);
-            this.activityByName.set(activity.getGroup() + " / " + activity.getName(), activity);
-        },
-
-        /**
-         * 
-         * @param {string} activityId 
-         * @returns {Activity}
-         */
-        getById : function(activityId) {
-            return this.activityById.get(activityId);
-        },
-
-        /**
-         * 
-         * @param {string} activityName 
-         * @returns {Activity}
-         */
-        getByName : function(activityName) {
-            return this.activityByName.get(activityName);
-        },
-
-        /**
-         * 
-         * @returns {Activity[]}
-         */
-        getAll : function() {
-            return this.activities;
-        }
-    });
-
-    /**
-     * 
-     * @param {string} id 
-     * @param {string} group 
-     * @param {string} name 
-     * @param {string} description 
-     * @param {string} maxAllowed 
-     * @param {string} custom 
-     */
-    function Activity(id, group, name, description, maxAllowed, custom) {
-        this.id = id;
-        this.group = group;
-        this.name = name;
-        this.description = description;
-        this.maxAllowed = maxAllowed;
-        this.custom = custom;
-    }
-
-    $.extend(Activity.prototype, {
-        /**
-         * 
-         * @returns {string}
-         */
-        getId : function () {
-            return this.id;
-        },
-
-        /**
-         * 
-         * @returns {string}
-         */
-        getGroup : function () {
-            return this.group;
-        },
-
-        /**
-         * 
-         * @returns {string}
-         */
-        getName : function () {
-            return this.name;
-        },
-
-        /**
-         * 
-         * @returns {string}
-         */
-        getDescription : function () {
-            return this.description;
-        },
-
-        /**
-         * 
-         * @returns {string}
-         */
-        getMaxAllowed : function() {
-            return this.maxAllowed;
-        },
-
-        /**
-         * 
-         * @returns {string}
-         */
-        getCustom : function() {
-            return this.custom;
-        }
-    });
-
-    /**
-     * 
-     * @param {string[]} row 
-     * @param {object} metadata 
-     * @returns {Activity}
-     */
-    Activity.fromRecord = function (row, metadata) {
-        if (!row[metadata.id.index] || row[metadata.id.index] === "") {
-            return ;
-        }
-        return new Activity(
-            row[metadata.id.index], 
-            row[metadata.group.index], 
-            row[metadata.name.index], 
-            row[metadata.description.index], 
-            row[metadata.max.index],
-            row[metadata.custom.index]
-        );
-    };
-
-    /**
-     * 
-     * @param {object} data 
-     * @returns {Activity}
-     */
-    Activity.fromJson = function (data) {
-        return new Activity(
-            data["id"],
-            data["group"], 
-            data["name"], 
-            data["description"], 
-            data["maxAllowed"],
-            data["custom"]
-        );
-    };
 
     //editted from here
     function Locations() {
@@ -498,7 +310,175 @@
             data["country"]
         );
     };
+
+
+    
     //editted till here
+
+
+    //varad
+
+    function BookKits() {
+        this.cachable = new Cachable();
+        $.cacheManager.register(CACHE_KEY_BOOKKITS, new Cache(CACHE_KEY_BOOKKITS, this, CACHE_EVICATION_BOOKKITS)); // 1 minute
+
+        this.BookKits = [];
+        this.BookKitById = new Map();
+        this.BookKitByName = new Map();
+    }
+
+
+    $.extend(BookKits.prototype, {
+
+        /**
+         * 
+         * @param {function} callback 
+         * @returns {BookKit[]}
+         */
+        load: function(callback) {
+            var arrBookKits = $.cacheManager.get(CACHE_KEY_BOOKKITS).load(callback);
+            arrBookKits.forEach(bookKit => {
+                this.add(bookKit);
+            });
+            return this.getAll();
+        },
+
+        save: function() {
+            $.cacheManager.get(CACHE_KEY_BOOKKITS).save(this.bookKits);
+        },
+
+        /**
+         * 
+         * @param {string} content 
+         * @returns {Location[]}
+         */
+        fromCache: function(content) {
+            var arrBookKits = this.cachable.fromCache(content);
+            var arrResult = [];
+            arrBookKits.forEach(jsonBookKit => {
+                arrResult.push(bookKit.fromJson(jsonBookKit));
+            });
+            return arrResult;
+        },
+
+        /**
+         * 
+         * @param {any} data 
+         * @returns {string} content to be cached
+         */
+        toCache: function(data) {
+            return this.cachable.toCache(data);
+        },
+
+        /**
+         * 
+         * @param {bookKit} location 
+         */
+        add : function(bookKit) {
+            this.BookKits.push(bookKit);
+            this.BookKitById.set(bookKit.getId(), bookKit);
+            this.BookKitByName.set(bookKit.getKitName() , bookKit);
+        },
+
+        /**
+         * 
+         * @param {string} locationId 
+         * @returns {Location}
+         */
+        getById : function(bookKitId) {
+            return this.BookKitById.get(bookKitId);
+        },
+
+        /**
+         * 
+         * @param {string} bookKitName 
+         * @returns {Location}
+         */
+        getByName : function(bookKitName) {
+            return this.BookKitByName.get(bookKitName);
+        },
+
+        /**
+         * 
+         * @returns {Location[]}
+         */
+        getAll : function() {
+            return this.bookKits;
+        }
+    });
+
+    /**
+     * 
+     * @param {string} id 
+     * @param {string} branch 
+     * @param {string} city 
+     * @param {string} state 
+     * @param {string} country 
+     */
+    function BookKit(id, kitName, subject) {
+        this.id = id;
+        this.kitName = kitName;
+        this.subject = subject;
+    }
+
+    $.extend(BookKit.prototype, {
+        /**
+         * 
+         * @returns {string}
+         */
+        getId : function () {
+            return this.id;
+        },
+
+        /**
+         * 
+         * @returns {string}
+         */
+        getKitName : function () {
+            return this.kitName;
+        },
+
+        /**
+         * 
+         * @returns {string}
+         */
+        getSubject : function () {
+            return this.subject;
+        }
+    });
+
+    /**
+     * 
+     * @param {string[]} row 
+     * @param {object} metadata 
+     * @returns {Location}
+     */
+    BookKit.fromRecord = function (row, metadata) {
+        if (!row[metadata.id.index] || row[metadata.id.index] === "") {
+            return ;
+        }
+        return new BookKit(
+            row[metadata.id.index], 
+            row[metadata.kitName.index], 
+            row[metadata.subject.index]
+        );
+    };
+
+    /**
+     * 
+     * @param {object} data 
+     * @returns {Location}
+     */
+    BookKit.fromJson = function (data) {
+        return new BookKit(
+            data["id"],
+            data["kitName"], 
+            data["subject"]
+        );
+    };
+
+    
+    //varad
 
     function Supervisors() {
         this.cachable = new Cachable();
@@ -1005,22 +985,20 @@
      * @param {string} id 
      * @param {string} name 
      * @param {string} board 
-     * @param {string} city 
      * @param {string} location 
      * @param {string} grade 
-     * @param {string} Subject 
+     * @param {string} bookKitName 
      * @param {string} emailId 
      * @param {string} mobileNo
      * @param {string} paymentStatus
      */
-    function Student(id, name, board, city, location, grade, Subject, emailId, mobileNo,paymentStatus) {
+    function Student(id, name, board, location, grade, bookKitName, emailId, mobileNo,paymentStatus) {
         this.id = id;
         this.name = name;
         this.board = board;
-        this.city = city;
         this.location = location;
         this.grade = grade;
-        this.Subject = Subject;
+        this.bookKitName = bookKitName;
         this.emailId = emailId;
         this.mobileNo = mobileNo;
         this.paymentStatus = paymentStatus;
@@ -1056,14 +1034,6 @@
          * 
          * @returns {string}
          */
-        getCity : function() {
-            return this.city;
-        },
-
-        /**
-         * 
-         * @returns {string}
-         */
         getLocation : function() {
             return this.location;
         },
@@ -1080,8 +1050,8 @@
          * 
          * @returns {string}
          */
-        getSubject : function() {
-            return this.Subject;
+        getBookKitName : function() {
+            return this.bookKitName;
         },
 
         /**
@@ -1123,10 +1093,9 @@
             row[metadata.id.index], 
             row[metadata.name.index], 
             row[metadata.board.index], 
-            row[metadata.city.index],
             row[metadata.location.index],
             row[metadata.grade.index],
-            row[metadata.Subject.index],
+            row[metadata.bookKitName.index],
             row[metadata.emailId.index],
             row[metadata.mobileNo.index],
             row[metadata.paymentStatus.index],
@@ -1143,10 +1112,9 @@
             data["id"], 
             data["name"], 
             data["board"], 
-            data["city"],
             data["location"],
             data["grade"],
-            data["Subject"],
+            data["bookKitName"],
             data["emailId"],
             data["mobileNo"],
             data["paymentStatus"],
@@ -1616,19 +1584,15 @@
 
     $.Cache = Cache;
     $.Cachable = Cachable;
-    $.Activities = Activities;
-    $.Activity = Activity;
     $.Locations = Locations;
     $.Location = Location;
     $.Supervisors = Supervisors;
     $.Supervisor = Supervisor;
-    $.Members = Members;
-    $.Member = Member;
-    $.Entries = Entries;
-    $.Entry = Entry;
     $.Students = Students;
     $.Student = Student;
     $.Records = Records;
-    $.Record = Record;   
-    
+    $.Record = Record;       
+    $.BookKits = BookKits;
+    $.BookKit = BookKit; 
+
 })(jQuery);
