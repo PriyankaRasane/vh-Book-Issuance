@@ -226,13 +226,15 @@
      * @param {string} city 
      * @param {string} state 
      * @param {string} country 
+     * @param {string} cluster 
      */
-    function Location(id, branch, city, state, country) {
+    function Location(id, branch, city, state, country , cluster) {
         this.id = id;
         this.branch = branch;
         this.city = city;
         this.state = state;
         this.country = country;
+        this.cluster = cluster;
     }
 
     $.extend(Location.prototype, {
@@ -274,6 +276,14 @@
          */
         getCountry : function() {
             return this.country;
+        },
+        
+        /**
+         * 
+         * @returns {string}
+         */
+        getCluster : function() {
+            return this.cluster;
         }
     });
 
@@ -292,7 +302,8 @@
             row[metadata.branch.index], 
             row[metadata.city.index], 
             row[metadata.state.index], 
-            row[metadata.country.index]
+            row[metadata.country.index],
+            row[metadata.cluster.index]
         );
     };
 
@@ -307,7 +318,8 @@
             data["branch"], 
             data["city"], 
             data["state"], 
-            data["country"]
+            data["country"],
+            data["cluster"]
         );
     };
 
