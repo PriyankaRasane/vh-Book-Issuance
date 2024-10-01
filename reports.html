@@ -29,7 +29,7 @@
                 <a class="navbar-brand js-scroll-trigger" href="#page-top"><img src="assets/img/logo.svg" width="150px" alt="VIBGIYOR Global School Logo" width="250"/></a><button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
                 <div class="collapse navbar-collapse" id="navbarResponsive">
                     <ul class="navbar-nav ml-auto my-2 my-lg-0">
-                        <li class="nav-item"><a id='navToReports' class="nav-link js-scroll-trigger" href="#reports">Reports</a></li>
+                      <!--  <li class="nav-item"><a id='navToReports' class="nav-link js-scroll-trigger" href="#reports">Reports</a></li> -->
                         <li class="nav-item"><a id='navToDetail' class="nav-link js-scroll-trigger" href="#detail">Detail</a></li>
                     </ul>
                 </div>
@@ -66,20 +66,28 @@
                                 <li><a href="#tabs-pending">Yet to Handover</a></li>
                                 <li><a href="#tabs-attended">Handed Over </a></li>
                                 <li>
+                                    <select title="Select Cluster from drop-down" class="form-control" id="clusterFilter" name="clusterFilter" onchange="prepareMemberDrilldown()">
+                                        <option value="0" selected>ALL</option>
+                                        <option value="1">Cluster 1</option>
+                                        <option value="3">Cluster 3</option>
+                                        <option value="4">Cluster 4</option>
+                                        <option value="5">Cluster 5</option>
+                                        <option value="6">Cluster 6</option>
+                                    </select>
+                                </li>
+                                
+                                <li>
+                                    <select titla="Select Branch from drop-down" class="form-control" id="location" name="location" onchange="prepareMemberDrilldown()">/*onchange="if ($('#location').find(':selected')) { $('#locationDescription').text(window.locations.getById($('#location').find(':selected').val()).getDescription());} "*/>
+                                        <!-- options to be added by loadActivities -->
+                                        <option value="0">ALL</option>
+                                    </select>
+                                </li>
+                                <li>
                                     <select title="Select Board from drop-down" class="form-control" id="memberTypeFilter" name="memberTypeFilter" onchange="prepareMemberDrilldown()">
                                         <option value="0" selected>ALL</option>
                                         <option value="1">CBSE</option>
                                         <option value="2">ICSE</option>
                                         <option value="3">IGCSE</option>
-                                    </select>
-                                </li>
-                                <li>
-                                    <select title="Select City from drop-down" class="form-control" id="cityFilter" name="cityFilter" onchange="prepareMemberDrilldown()">
-                                        <option value="0" selected>ALL</option>
-                                        <option value="1">Pune</option>
-                                        <option value="2">Mumbai</option>
-                                        <option value="3">Bengaluru</option>
-                                        <option value="4">Coimbatore</option>
                                     </select>
                                 </li>
                                 <li>
@@ -92,7 +100,7 @@
                             </ul>
                             <div id="tabs-pending">
                                 <div class="table-responsive">
-                                    <table id="tablePending" class="table table-striped table-bordered" cellspacing="0" width="100%">
+                                    <table id="tablePending" class="table table-striped table-bordered" cellspacing="0" width="100%"  >
                                         <thead>
                                             <tr>
                                                 <th>Name</th>
@@ -106,7 +114,7 @@
                             </div>
                             <div id="tabs-attended">
                                 <div class="table-responsive">
-                                    <table id="tableAttended" class="table table-striped table-bordered" cellspacing="0" width="100%">
+                                    <table id="tableAttended" class="table table-striped table-bordered" cellspacing="0" width="100%"  >
                                         <thead>
                                             <tr>
                                                 <th>Name</th>
@@ -273,7 +281,61 @@
                     });
                     return arrLocations;
                 });
+                
+/*                let locationOptionsHtml = "<option value='0'>All</option>"; // Initialize with 'All' option
+
+                $('#location').html("");
+                window.locations.getAll().forEach(location => {
+                    locationOptionsHtml = locationOptionsHtml 
+                       +"<option value='" + location.getId() + "'>" + location.getCity() + " / " + location.getBranch() + "</option>";
+                });
+                $('#location').html(locationOptionsHtml);*/
+                populateLocationDropdown('0'); // Show all locations initially
+
+                info('loadLocations: loaded locations - ' + JSON.stringify(window.locations));
+                endLog('loadLocations');
+
+
             }
+
+            function populateLocationDropdown(filter) {
+                let locationOptionsHtml = "<option value='0'>ALL</option>"; // Always start with 'All' option
+                let locations = Array.from(window.locations.getAll()); // Convert the collection to an array
+
+                // Filter locations based on the filter parameter
+                let filteredLocations = locations.filter((location) => {
+
+                    let clusterName = location.getCluster();  // Assuming getRegion() returns the region
+    
+                    if (filter === "0") {
+                        return true; // If 'All' is selected, return all locations
+                    } else {
+                       let res =  ((filter === "1" && clusterName === "Cluster 1")
+                      || (filter === "3" && clusterName === "Cluster 3")
+                      || (filter === "4" && clusterName === "Cluster 4")
+                      || (filter === "5" && clusterName === "Cluster 5")
+                      || (filter === "6" && clusterName === "Cluster 6"));
+                        return res; // Assuming locations have a 'getRegion' method
+                    }
+                });
+
+            
+            // Generate options for the filtered locations
+            filteredLocations.forEach(location => {
+                locationOptionsHtml += "<option value='" + location.getId() + "'>" 
+                                        + location.getCity() + " / " + location.getBranch() + "</option>";
+            });
+                    // Set the HTML of the location dropdown
+            $('#location').html(locationOptionsHtml);
+
+
+            // Event listener for the filter dropdown
+            document.getElementById('clusterFilter').addEventListener('change', function() {
+                let selectedFilter = this.value; // Get the selected filter value
+                populateLocationDropdown(selectedFilter); // Call the function to populate locations based on filter
+            });   
+            }
+
 
             function loadStudents() {
                 startLog('loadStudents');
@@ -574,13 +636,13 @@
                     handleSelection(group, activityName);
                 });
                 
-                chart.draw(chartTable, {
+                /*chart.draw(chartTable, {
                     allowHtml: true,
                     showRowNumber: true, 
                     width: '100%', 
                     height: '100%',
                     sortColumn: 0
-                });
+                });*/
 
                 chart.setSelection([{row:0, column: null}]);
                 handleSelection(data[0][0], data[0][1]);
@@ -606,12 +668,18 @@
                     || (paymentStatus === "2" && student.getPaymentStatus() === "Pending"));
             }
 
-            function iscityType(location, citySelected) {
-                return (citySelected === "0" 
-                    || (citySelected === "1" && location.getCity() === "Pune")
-                    || (citySelected === "2" && location.getCity() === "Mumbai")
-                    || (citySelected === "3" && location.getCity() === "Bengaluru")
-                    || (citySelected === "4" && location.getCity() === "Coimbatore"));
+            function isClusterType(location, clusterSelected) {
+                return (clusterSelected === "0" 
+                    || (clusterSelected === "1" && location.getCluster() === "Cluster 1")
+                    || (clusterSelected === "3" && location.getCluster() === "Cluster 3")
+                    || (clusterSelected === "4" && location.getCluster() === "Cluster 4")
+                    || (clusterSelected === "5" && location.getCluster() === "Cluster 5")
+                    || (clusterSelected === "6" && location.getCluster() === "Cluster 6"));
+            }
+
+            function isBranch(location, branchSelected) {
+                return (branchSelected === '0' 
+                    || ( branchSelected === location.getId()));
             }
 
             function prepareMemberDrilldown() {
@@ -621,13 +689,15 @@
                 var students = window.students.getAll();
                 var boardType = $("#memberTypeFilter").find(":selected").val();
                 var paymentStatusType = $("#paymentStatusFilter").find(":selected").val();
-                var citySelected = $("#cityFilter").find(":selected").val();
+                var clusterSelected = $("#clusterFilter").find(":selected").val();
+                var branchSelected = $("#location").find(":selected").val();
 
                 students.forEach((student) => {
                     var location = window.locations.getById(student.getLocation());
+                   // console.log('branchSelected',branchSelected,' location.get',location.getId());
 
                     if ((isBoardType(student, boardType)) && (ispaymentStatusType(student,paymentStatusType))
-                         && (iscityType(location,citySelected))) {
+                         && (isClusterType(location,clusterSelected))  && isBranch(location, branchSelected)  ) {
 
                         var found = false;
                         var records = window.records.getByEnrollmentId(student.getId());
