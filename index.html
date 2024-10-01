@@ -69,6 +69,7 @@
                                     <tr><td class="label">Board</td><td id="board"></td></tr>
                                     <tr><td class="label">Grade</td><td id="grade"></td></tr>
                                     <tr><td class="label">Book Kit</td><td id="bookKit"></td></tr>
+                                    <tr><td class="label">Remark</td><td id="remark"></td></tr>
                                     <tr><td colspan='2' id="schedule"></td></tr>
                                 </tbody>
                             </table>
@@ -78,12 +79,12 @@
                                 <input type="hidden" id="locationId"></input>
                                 <button type="submit" id="btnSubmit" class="btn btn-danger" >Submit</button>
                                 <button type="button" class="btn btn-secondary" onclick="$('#supervisorModel').slideDown();">
-                                    Change Station
+                                    Change Branch
                                 </button>
-                                <button type="button" class="btn btn-secondary" onclick="window.location.href='https://scanapp.org/'">
+                                <!--<button type="button" class="btn btn-secondary" onclick="window.location.href='https://scanapp.org/'">
                                     Scan
                                 </button>
-                                <!--
+                                
                                 <p style="width: 100%; text-align: left;">Remarks: </p>
                                 <textarea class="form-control" name="remarks" id="remarks" rows="3" style="width: 100%"></textarea>                                
                                 <br/>
@@ -225,8 +226,9 @@
 
             //const CLIENT_ID='468136229605-60n0gnuitqds37p6o3eg978rhrc60b83.apps.googleusercontent.com';
 
+           //localhost
             const API_KEY = 'AIzaSyC-vErZvi_JUQHFrNwXAXIYpND3GPzQrhM';
-            // const API_KEY = 'AIzaSyBrrSoj2TJvycU8Ur-ujTiZoCaHFbbbsCg';
+           // const API_KEY = 'AIzaSyBrrSoj2TJvycU8Ur-ujTiZoCaHFbbbsCg';
             const DISCOVERY_DOCS = ['https://www.googleapis.com/discovery/v1/apis/gmail/v1/rest'];
             const SCOPES = 'https://www.googleapis.com/auth/gmail.send';
 
@@ -244,8 +246,8 @@
                 clientId: CLIENT_ID,
                 discoveryDocs: DISCOVERY_DOCS,
                 scope: SCOPES,
-                // plugin_name: 'vh-Book-Issuance'
-		    plugin_name: 'StudentKitDistribution'
+                plugin_name: 'StudentKitDistribution'
+               //plugin_name: 'vh-Book-Issuance'
             }).then(() => {
                 gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
                 updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
@@ -704,13 +706,21 @@
                     $("#board").text(student.getBoard() );
                     $("#grade").text(student.getGrade() + " (" + location.getCity() + "-" + location.getBranch() + ")" );
                     $("#bookKit").text(bookKit.getKitName() + " ( " + bookKit.getSubject() + ")");
-
+                    var flag = chkRecordSubmitted();
                     const button = document.querySelector("#btnSubmit");
 
-                    if (student.getPaymentStatus()=="Paid")
+                    if (student.getPaymentStatus()=="Paid" & (flag))
                         button.disabled=false;
-                    else
+                    else 
+                    {
                         button.disabled=true;
+                        if (student.getPaymentStatus()=="Pending")
+                        {
+                            $("#remark").text("payment is yet to be received for " + window.student.getName() + " !");
+                            return false;
+                        }
+                    }
+
                     
                    /* var metaStudents = window.staticSetup.metadata.students;
                     $("#schedule").html("<a href='./files/" + member.getSchedule() + "' target='_blank'>Click to download " + metaMembers.schedule.displayName + "</a>");
@@ -780,7 +790,7 @@
                         info("handleSubmit : event = " + JSON.stringify(event));
                         event.preventDefault();
                         // ensure to load sub-sequent entries
-                        loadSubsequentRecords();
+                      /*  loadSubsequentRecords();
                         // duplicate submission check
                         var location = window.locations.getById(window.staticSetup.selectedLocationId);
                         var uniqueId = window.records.getUniqueId(window.student.getId());
@@ -792,9 +802,14 @@
                             showMessage("Submission was already done for " + window.student.getName() + " at station " + recLocation.getCity() + "/" +recLocation.getBranch() + " by " + recSupervisor.getName() + " !");
                             return false;
                         }
+                        */
 
-                        handleClientLoad();
-                        callOTPForm();
+                        var flag = chkRecordSubmitted();
+                        if (flag)
+                        {
+                            handleClientLoad();
+                           callOTPForm();
+                        }
 
                     } finally {
                         endLog("handleSubmit");
@@ -815,6 +830,25 @@
                 endLog("initializeFormSubmit");
             }
           
+
+            function chkRecordSubmitted()
+            {
+                    loadSubsequentRecords();
+                    // duplicate submission check
+                    var location = window.locations.getById(window.staticSetup.selectedLocationId);
+                    var uniqueId = window.records.getUniqueId(window.student.getId());
+                    var record = window.records.getByUniqueId(uniqueId);
+
+                    if (record) {
+                        var recLocation = window.locations.getById(record.locationId);
+                        var recSupervisor = window.supervisors.getById(record.superviserId);
+                        $("#remark").text("Submission was already done for " + window.student.getName() + " at station " + recLocation.getCity() + "/" +recLocation.getBranch() + " by " + recSupervisor.getName() + " !");
+
+                       // showMessage("Submission was already done for " + window.student.getName() + " at station " + recLocation.getCity() + "/" +recLocation.getBranch() + " by " + recSupervisor.getName() + " !");
+                        return false;
+                    }
+                    return true;
+            }
             /**
              * Determine if the mobile operating system is Android
              *
