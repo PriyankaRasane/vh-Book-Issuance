@@ -12,7 +12,7 @@
         "sheetId": "16g1K8eb5lva6xfu8batH_pHI9TpH1E8eyxt0BiG0_hA",
         "records": "records!A2:E12000",
         "supervisors": "supervisors!A2:D100",
-        "locations": "locations!A2:E21",
+        "locations": "locations!A2:F21",
         "bookKits": "bookKits!A2:C10",
         "setup": "setup!B2:C6",
         "students":"students!A2:L1200"
@@ -43,6 +43,11 @@
                 "index": 4,
                 "name": "country",
                 "displayName": "Country"
+            },
+            "cluster": {
+                "index": 5,
+                "name": "cluster",
+                "displayName": "Cluster"
             }
         },
         "bookKits": {
